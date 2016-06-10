@@ -44,7 +44,7 @@ public class TcpServer
 						out.println(name+" you are now part of group");
 						remotePrint(socket1,hashMap.get(socket1)+" has entered in the room");
 
-					}catch(IOException exp){
+					}catch(Exception exp){
 						exp.printStackTrace();
 					}
 
@@ -63,6 +63,7 @@ public class TcpServer
 								if((str==null)|(str.equals("null"))|(str.equals("END"))){
 									System.out.println(hashMap.get(socket2)+" disconnects");
 									remotePrint(socket2,hashMap.get(socket2)+" disconnects");
+									hashMap.remove(socket2);
 									break;
 								}			
 
@@ -70,9 +71,10 @@ public class TcpServer
 	 							remotePrint(socket2,"From "+hashMap.get(socket2)+": "+str);
 							}
 
-							}catch (IOException e) {
+							}catch (Exception e) {
 								System.out.println(hashMap.get(socket2)+" disconnects");
 								remotePrint(socket2,hashMap.get(socket2)+" disconnects");
+								hashMap.remove(socket2);
 								//e.printStackTrace();
 							}
 						}						
@@ -94,7 +96,7 @@ public class TcpServer
 						   out.println(text);
 						}
 					}
-				}catch(IOException exp){
+				}catch(Exception exp){
 					//
 				}
 			}

@@ -69,6 +69,13 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		oneTimeDialog.setLocationRelativeTo(null);
 		oneTimeDialog.setSize(360,270);
 		oneTimeDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
+		oneTimeDialog.addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent event){
+				System.out.println("close window");
+				dispose();
+				System.exit(1);
+			}
+		});
 
 		JPanel p=new JPanel(new GridLayout(3,1));
 		label_name=new JLabel("Enter your name");
