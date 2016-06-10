@@ -3,6 +3,8 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.net.*;
+import java.io.*;
 
 public class TcpClient extends JFrame implements ActionListener, ListSelectionListener{
 
@@ -20,9 +22,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JTextField inputField;
 	JEditorPane editor;
 	JTextField name_field;
+	JLabel label_name;
 
 	JList<String> list;
 	DefaultListModel<String> model;
+	boolean clickedAlready=false;
 
 	TcpClient(){
 		setBackground(Color.white);
@@ -47,6 +51,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 
 		sendButton=new JButton("Send");
+		sendButton.addActionListener(this);
 		sendButton.setPreferredSize(new Dimension(side_panel_width,bottom_panel_height));
 
 		createOneTimeDialog();
@@ -62,13 +67,15 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void createOneTimeDialog(){
 		oneTimeDialog=new JDialog(this,"Required !!",Dialog.ModalityType.APPLICATION_MODAL);
 		oneTimeDialog.setLocationRelativeTo(null);
-		oneTimeDialog.setSize(330,250);
+		oneTimeDialog.setSize(360,270);
 		oneTimeDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
 
 		JPanel p=new JPanel(new GridLayout(3,1));
-		JLabel label_name=new JLabel("Enter your name");
+		label_name=new JLabel("Enter your name");
 		name_field=new JTextField(25);
+		name_field.addActionListener(this);
 		connectButton=new JButton("Connect");
+		connectButton.addActionListener(this);
 
 		JPanel p1=new JPanel(new GridBagLayout());
 		JPanel p2=new JPanel(new GridBagLayout());
@@ -144,6 +151,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 		JPanel bottomPane=new JPanel(new GridBagLayout());
 		JButton chat_sendButton=new JButton("Send");
+		chat_sendButton.addActionListener(this);
 		chat_sendButton.setPreferredSize(d);
 
 		JTextField chat_messageText=new JTextField(100);
@@ -190,6 +198,54 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 	public void actionPerformed(ActionEvent action){
 
+		if((action.getSource()==connectButton||action.getSource()==name_field)&&(!clickedAlready)){
+			test("Enter a name: "+ name_field.getText());	
+
+			if((name_field.getText()!=null)&(name_field.getText().length()!=0)){
+
+				try{
+					Socket socket=null;
+
+					if(server_ip.equals("localhost")){
+						InetAddress addr = InetAddress.getByName("localhost");
+						socket=new Socket(addr,server_port);
+					}else{
+						socket=new Socket(server_ip,server_port);
+					}
+					
+					test("Socket= "+socket);
+
+					clientName=name_field.getText();
+					test("Enter a name: "+clientName);		
+
+					PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+					out.println(clientName);
+
+					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String fromServer=reader.readLine();
+
+					if(fromServer.equals("alias already taken... please enter another alias")){
+						label_name.setText("Alias already taken.. Please enter another alias");
+						name_field.setText("");
+						return;
+
+					}else{
+						setTitle("Group Messenger (alias: "+clientName+")");
+						oneTimeDialog.setVisible(false);
+					}
+
+					clickedAlready=true;
+
+				}catch(Exception exp){
+					test(exp.getMessage());
+				}
+
+
+			}else{
+				label_name.setText("Enter valid Name");
+			}
+
+		}
 	}
 
 	public void valueChanged(ListSelectionEvent event){
