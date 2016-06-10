@@ -11,11 +11,14 @@ public class TcpServer
 	static String name=null;
 	static int count=0;
 
+	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
+	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
+
 	public static void main(String[] args)throws Exception
 	{
 		serverSocket=new ServerSocket(PORT);
 		System.out.println("Started : "+serverSocket);
-		
+
 		Thread server_accepter=new Thread(new Runnable(){
 			public void run(){
 
@@ -39,10 +42,21 @@ public class TcpServer
 						Socket socket1=socket;
 						
 						count=count+1;
+						
 						hashMap.put(socket1,name);	
 						System.out.println(hashMap.get(socket1)+" has entered in the room");
 						out.println(name+" you are now part of group");
-						remotePrint(socket1,hashMap.get(socket1)+" has entered in the room");
+						remotePrint(socket1,hashMap.get(socket1)+" has entered in the room"+ADD_CLIENT);
+
+						//tellRoomMembers(socket1);
+						Set<Socket> ss=hashMap.keySet();
+						Iterator<Socket> it1=ss.iterator();
+
+						while(it1.hasNext()){
+							String alias=hashMap.get(it1.next());
+							out.println(alias+ADD_CLIENT);
+							System.out.println("@ "+alias+" "+ADD_CLIENT);
+						}
 
 					}catch(Exception exp){
 						exp.printStackTrace();
@@ -62,7 +76,7 @@ public class TcpServer
 
 								if((str==null)|(str.equals("null"))|(str.equals("END"))){
 									System.out.println(hashMap.get(socket2)+" disconnects");
-									remotePrint(socket2,hashMap.get(socket2)+" disconnects");
+									remotePrint(socket2,hashMap.get(socket2)+" disconnects"+REMOVE_CLIENT);
 									hashMap.remove(socket2);
 									break;
 								}			
@@ -73,7 +87,7 @@ public class TcpServer
 
 							}catch (Exception e) {
 								System.out.println(hashMap.get(socket2)+" disconnects");
-								remotePrint(socket2,hashMap.get(socket2)+" disconnects");
+								remotePrint(socket2,hashMap.get(socket2)+" disconnects"+REMOVE_CLIENT);
 								hashMap.remove(socket2);
 								//e.printStackTrace();
 							}

@@ -18,6 +18,8 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JDialog oneTimeDialog;
 	JDialog chatDialog;
 
+	Thread receiver,sender;
+
 	JButton sendButton,connectButton;
 	JTextField inputField;
 	JEditorPane editor;
@@ -27,6 +29,8 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JList<String> list;
 	DefaultListModel<String> model;
 	boolean clickedAlready=false;
+
+	static boolean threads_running_flag=false;
 
 	TcpClient(){
 		setBackground(Color.white);
@@ -43,11 +47,6 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		list.setFixedCellWidth(side_panel_width);
 		list.setFixedCellHeight(30);
 		list.addListSelectionListener(this);
-		model.addElement("Client1");
-		model.addElement("Client2");
-		model.addElement("Client3");
-		model.addElement("Client4");
-		model.addElement("Client5");
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 
 		sendButton=new JButton("Send");
@@ -193,6 +192,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 			editor.setText(editor.getText()+"\n"+in);
 		}
 		inputField.requestFocus();
+		editor.setCaretPosition(editor.getText().length());
 	}
 
 	public void test(Object in){
@@ -238,6 +238,79 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 					}else{
 						setTitle("Group Messenger (alias: "+clientName+")");
+
+						final Socket socket2=socket;
+
+						// sender and reciever threads
+						sender=new Thread(new Runnable(){
+							public void run(){
+								//
+							}
+						});
+
+						receiver=new Thread(new Runnable(){
+							public void run(){
+								
+								try{
+									boolean flag=true;
+									String str=null;
+									int index_add_client=-1;
+									int index_remove_client=-1;
+									BufferedReader in = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
+
+									while(flag){	
+										str=in.readLine(); test("log: "+str);
+
+										index_add_client=str.indexOf(TcpServer.ADD_CLIENT+"");
+										test("log11: "+index_add_client);
+										boolean old_client=false;
+
+										if(index_add_client!=-1){
+											int index=str.indexOf(" has entered in the room");
+											if(index==-1){	 index=index_add_client;	old_client=true;   }
+
+											addAliasToList(str.substring(0,index));
+											str=str.substring(0,index_add_client);
+										}	test("log1: "+str);
+
+										if(str==null){
+											continue;
+										}
+
+										index_remove_client=str.indexOf(TcpServer.REMOVE_CLIENT+"");
+										if(index_remove_client!=-1){
+											int index=str.indexOf(" disconnects");
+											if(index==-1){   index=index_remove_client;    old_client=true;    }
+
+											removeAliasFromList(str.substring(0,index));
+											str=str.substring(0,index_remove_client);
+										}	test("log2: "+str);
+
+										if((str.trim().length()==0)||(old_client==true)){
+											continue;
+										}
+
+										System.out.println("$ "+str);
+										write2Editor(str);
+
+										if(str.equals("END")){
+											flag=false;
+										}
+									}
+
+								}catch(Exception exp){
+									exp.printStackTrace();
+								}
+
+							}
+						});
+
+						threads_running_flag=true;
+						//sender.start();
+						receiver.start();
+
+						//addAliasToList(clientName);
+
 						oneTimeDialog.setVisible(false);
 					}
 
@@ -253,6 +326,14 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 			}
 
 		}
+	}
+
+	public void addAliasToList(String alias){
+		model.addElement(alias);
+	}
+
+	public void removeAliasFromList(String alias){
+		model.removeElement(alias);
 	}
 
 	public void valueChanged(ListSelectionEvent event){
