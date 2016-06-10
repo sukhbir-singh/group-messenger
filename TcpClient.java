@@ -11,11 +11,15 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	int bottom_panel_height=45;
 	int server_port=8081;
 	String server_ip="localhost";
+	String clientName="client";
 	Vector<String> online_users;
+	JDialog oneTimeDialog;
+	JDialog chatDialog;
 
-	JButton sendButton;
+	JButton sendButton,connectButton;
 	JTextField inputField;
 	JEditorPane editor;
+	JTextField name_field;
 
 	JList<String> list;
 	DefaultListModel<String> model;
@@ -27,6 +31,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		online_users=new Vector<>();
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
 
 		model=new DefaultListModel<>();
 		list=new JList<>(model);
@@ -44,11 +49,40 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		sendButton=new JButton("Send");
 		sendButton.setPreferredSize(new Dimension(side_panel_width,bottom_panel_height));
 
+		createOneTimeDialog();
+		//showChatDialog();
+
 		createUsersPanel();
 		createMainPanel();
 
 		inputField.requestFocus();
 		setVisible(true);
+	}
+
+	public void createOneTimeDialog(){
+		oneTimeDialog=new JDialog(this,"Required !!",Dialog.ModalityType.APPLICATION_MODAL);
+		oneTimeDialog.setLocationRelativeTo(null);
+		oneTimeDialog.setSize(330,250);
+		oneTimeDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
+
+		JPanel p=new JPanel(new GridLayout(3,1));
+		JLabel label_name=new JLabel("Enter your name");
+		name_field=new JTextField(25);
+		connectButton=new JButton("Connect");
+
+		JPanel p1=new JPanel(new GridBagLayout());
+		JPanel p2=new JPanel(new GridBagLayout());
+		JPanel p3=new JPanel(new GridBagLayout());
+
+		p1.add(label_name);
+		p2.add(name_field);
+		p3.add(connectButton);
+
+		p.add(p1);
+		p.add(p2);
+		p.add(p3);
+		oneTimeDialog.add(p);
+		oneTimeDialog.setVisible(true);
 	}
 
 	public void createUsersPanel(){
@@ -87,6 +121,50 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		main_panel.add(inputField,"South");
 		main_panel.add(sp,"Center");
 		add(main_panel,"Center");
+	}
+
+	public void showChatDialog(){
+		chatDialog=new JDialog(this,"Required !!",Dialog.ModalityType.APPLICATION_MODAL);
+		chatDialog.setSize(350,350);
+		chatDialog.setLocationRelativeTo(null);
+		chatDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
+		chatDialog.setTitle("Client1 to Client2");
+
+		int bottomHeight=35;
+		int bottomWidth=50;
+		Dimension d=new Dimension(bottomWidth,bottomHeight);
+
+		JPanel p=new JPanel(new BorderLayout());
+		JEditorPane ed1=new JEditorPane();
+		ed1.setEditable(false);
+		ed1.setFont(new Font("Arial",Font.PLAIN,14));
+		ed1.setText("Connected..");
+		ed1.setBackground(new Color(226,226,226));
+		ed1.setForeground(new Color(43,43,43));
+
+		JPanel bottomPane=new JPanel(new GridBagLayout());
+		JButton chat_sendButton=new JButton("Send");
+		chat_sendButton.setPreferredSize(d);
+
+		JTextField chat_messageText=new JTextField(100);
+		chat_messageText.setPreferredSize(d);
+
+		GridBagConstraints gbc=new GridBagConstraints();
+		gbc.gridx=0;	gbc.gridy=0;	gbc.gridheight=1;	gbc.gridwidth=1;	gbc.anchor=GridBagConstraints.CENTER;
+		gbc.weightx=1.0;	gbc.weighty=1.0; 	
+		gbc.fill=GridBagConstraints.BOTH;
+		bottomPane.add(chat_messageText,gbc);
+		
+		gbc.weightx=0;	gbc.weighty=0; 	
+		gbc.gridx=1;	
+		gbc.fill=GridBagConstraints.VERTICAL;
+		bottomPane.add(chat_sendButton,gbc);
+
+		p.add(ed1,"Center");
+		p.add(bottomPane,"South");
+		chatDialog.add(p);
+
+		chatDialog.setVisible(true);
 	}
 
 	public void write2Editor(String in){
