@@ -29,6 +29,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JList<String> list;
 	DefaultListModel<String> model;
 	boolean clickedAlready=false;
+	PrintWriter writer;
 
 	static boolean threads_running_flag=false;
 	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
@@ -124,6 +125,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		inputField=new JTextField("");
 		inputField.setPreferredSize(new Dimension(100,bottom_panel_height));
 		inputField.setFont(new Font("Arial",Font.PLAIN,20));
+		inputField.addActionListener(this);
 
 		editor=new JEditorPane();
 		editor.setEditable(false);
@@ -208,6 +210,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 	public void actionPerformed(ActionEvent action){
 
+		// for one time dialog
 		if((action.getSource()==connectButton||action.getSource()==name_field)&&(!clickedAlready)){
 			test("Enter a name: "+ name_field.getText());	
 
@@ -228,8 +231,8 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 					clientName=name_field.getText();
 					test("Enter a name: "+clientName);		
 
-					PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-					out.println(clientName);
+					writer = new PrintWriter(socket.getOutputStream(),true);
+					writer.println(clientName);
 
 					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					String fromServer=reader.readLine();
@@ -327,7 +330,6 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 								}catch(Exception exp){
 									exp.printStackTrace();
 								}
-
 							}
 						});
 
@@ -346,11 +348,19 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 					test(exp.getMessage());
 				}
 
-
 			}else{
 				label_name.setText("Enter valid Name");
 			}
 
+		}else if(action.getSource()==sendButton||action.getSource()==inputField){
+			String text=inputField.getText();
+			if(text.trim().length()==0){
+				return;
+			}
+
+			writer.println(text);
+			write2Editor("Me: "+inputField.getText());
+			inputField.setText("");
 		}
 	}
 

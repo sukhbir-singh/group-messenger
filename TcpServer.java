@@ -85,8 +85,8 @@ public class TcpServer
 									break;
 								}			
 
-	 							System.out.println("From "+hashMap.get(socket2)+": "+str);	
-	 							remotePrint(socket2,"From "+hashMap.get(socket2)+": "+str);
+	 							System.out.println(""+hashMap.get(socket2)+": "+str);	
+	 							remotePrint(socket2,""+hashMap.get(socket2)+": "+str);
 							}
 
 							}catch (Exception e) {
