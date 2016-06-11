@@ -13,6 +13,7 @@ public class TcpServer
 
 	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
 	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
+	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
 
 	public static void main(String[] args)throws Exception
 	{
@@ -51,12 +52,15 @@ public class TcpServer
 						//tellRoomMembers(socket1);
 						Set<Socket> ss=hashMap.keySet();
 						Iterator<Socket> it1=ss.iterator();
+						String list_all_active_users=LIST_CLIENTS;
 
 						while(it1.hasNext()){
 							String alias=hashMap.get(it1.next());
-							out.println(alias+ADD_CLIENT);
-							System.out.println("@ "+alias+" "+ADD_CLIENT);
+							list_all_active_users=list_all_active_users+" "+alias;
 						}
+
+						out.println(list_all_active_users);
+						System.out.println("list send : "+list_all_active_users);
 
 					}catch(Exception exp){
 						exp.printStackTrace();

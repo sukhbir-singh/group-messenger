@@ -31,6 +31,9 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	boolean clickedAlready=false;
 
 	static boolean threads_running_flag=false;
+	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
+	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
+	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
 
 	TcpClient(){
 		setBackground(Color.white);
@@ -239,6 +242,16 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 					}else{
 						setTitle("Group Messenger (alias: "+clientName+")");
 
+						String list_all_actives=reader.readLine();
+						if(list_all_actives.contains(LIST_CLIENTS)){
+							test("list recieved "+list_all_actives);
+
+							String[] aliases=list_all_actives.split(" ");
+							for(int i=1;i<aliases.length;i++){
+								addAliasToList(aliases[i]);
+							}
+						}
+
 						final Socket socket2=socket;
 
 						// sender and reciever threads
@@ -261,30 +274,43 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 									while(flag){	
 										str=in.readLine(); test("log: "+str);
 
-										index_add_client=str.indexOf(TcpServer.ADD_CLIENT+"");
-										test("log11: "+index_add_client);
+										index_add_client=str.indexOf(ADD_CLIENT+"");
 										boolean old_client=false;
 
 										if(index_add_client!=-1){
 											int index=str.indexOf(" has entered in the room");
-											if(index==-1){	 index=index_add_client;	old_client=true;   }
+											if(index==-1){	 
 
-											addAliasToList(str.substring(0,index));
-											str=str.substring(0,index_add_client);
-										}	test("log1: "+str);
+												index=index_add_client;	
+												old_client=true;   
+												addAliasToList(str.substring(0,index));	
+												str=str.substring(0,index);
 
-										if(str==null){
+											}else{
+												addAliasToList(str.substring(0,index));	
+												str=str.substring(0,index_add_client);
+											}	
+											
+										}	
+
+										if((str==null)||(old_client==true)){
 											continue;
 										}
 
-										index_remove_client=str.indexOf(TcpServer.REMOVE_CLIENT+"");
+										index_remove_client=str.indexOf(REMOVE_CLIENT+"");
 										if(index_remove_client!=-1){
 											int index=str.indexOf(" disconnects");
-											if(index==-1){   index=index_remove_client;    old_client=true;    }
+											if(index==-1){   
+												index=index_remove_client;    
+												old_client=true;    
 
-											removeAliasFromList(str.substring(0,index));
-											str=str.substring(0,index_remove_client);
-										}	test("log2: "+str);
+												removeAliasFromList(str.substring(0,index));
+												str=str.substring(0,index);	
+											}else{
+												removeAliasFromList(str.substring(0,index));
+												str=str.substring(0,index_remove_client);	
+											}
+										}	
 
 										if((str.trim().length()==0)||(old_client==true)){
 											continue;
@@ -309,7 +335,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 						//sender.start();
 						receiver.start();
 
-						//addAliasToList(clientName);
+						addAliasToList(clientName);
 
 						oneTimeDialog.setVisible(false);
 					}
@@ -329,10 +355,16 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	}
 
 	public void addAliasToList(String alias){
-		model.addElement(alias);
+		//test("request received for adding "+alias);
+
+		if(!model.contains(alias)&&(!alias.trim().equals(clientName))){
+			model.addElement(alias);	
+		}
 	}
 
 	public void removeAliasFromList(String alias){
+		//test("request received for removing "+alias);
+
 		model.removeElement(alias);
 	}
 
@@ -340,7 +372,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		if(!event.getValueIsAdjusting()){
 			JList source=(JList)event.getSource();
 			String item=source.getSelectedValue().toString().trim();
-			test("item selected "+item);
+			//test("item selected "+item);
 		}
 	}
 }
