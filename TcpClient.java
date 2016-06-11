@@ -6,7 +6,7 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
-public class TcpClient extends JFrame implements ActionListener, ListSelectionListener{
+public class TcpClient extends JFrame implements ActionListener, ListSelectionListener, MouseListener{
 
 	int screen_width=900,screen_height=600;
 	int side_panel_width=150;
@@ -14,11 +14,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	int server_port=8081;
 	String server_ip="localhost";
 	String clientName="client";
-	Vector<String> online_users;
 	JDialog oneTimeDialog;
 	JDialog chatDialog;
 
 	Thread receiver,sender;
+	HashMap<String,Integer> channels;	// 1 refers "on", 0 refers "off"
 
 	JButton sendButton,connectButton;
 	JTextField inputField;
@@ -36,11 +36,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
 	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
 
-	TcpClient(){
+	TcpClient(){ 
 		setBackground(Color.white);
 		setSize(screen_width,screen_height);
 		setTitle("Group Messenger");
-		online_users=new Vector<>();
+		channels=new HashMap<>();
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -52,6 +52,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		list.setFixedCellHeight(30);
 		list.addListSelectionListener(this);
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		list.addMouseListener(this);
 
 		sendButton=new JButton("Send");
 		sendButton.addActionListener(this);
@@ -64,7 +65,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		createMainPanel();
 
 		inputField.requestFocus();
-		setVisible(true);
+		setVisible(true);		
 	}
 
 	public void createOneTimeDialog(){
@@ -369,6 +370,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 		if(!model.contains(alias)&&(!alias.trim().equals(clientName))){
 			model.addElement(alias);	
+			channels.put(alias,0);
 		}
 	}
 
@@ -376,6 +378,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		//test("request received for removing "+alias);
 
 		model.removeElement(alias);
+		channels.remove(alias);
 	}
 
 	public void valueChanged(ListSelectionEvent event){
@@ -385,4 +388,18 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 			//test("item selected "+item);
 		}
 	}
+
+	public void mouseClicked(MouseEvent e){
+		if(e.getClickCount()==2){
+		 int index = list.locationToIndex(e.getPoint());
+         System.out.println("Double clicked on Item " + index+" "+clientName+" to "+list.getSelectedValue());
+         //showChatDialog();
+         ChatDialog dialog=new ChatDialog(this,clientName+" to "+list.getSelectedValue());
+		}
+	}
+
+	public void mouseEntered(MouseEvent e){}
+	public void mouseExited(MouseEvent e){}
+	public void mousePressed(MouseEvent e){}
+	public void mouseReleased(MouseEvent e){}
 }
