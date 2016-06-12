@@ -24,7 +24,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JButton sendButton,connectButton;
 	JTextField inputField;
 	JEditorPane editor;
-	JTextField name_field;
+	JTextField name_field,ip_field;
 	JLabel label_name;
 
 	JList<String> list;
@@ -75,7 +75,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void createOneTimeDialog(){
 		oneTimeDialog=new JDialog(this,"Required !!",Dialog.ModalityType.APPLICATION_MODAL);
 		oneTimeDialog.setLocationRelativeTo(null);
-		oneTimeDialog.setSize(360,270);
+		oneTimeDialog.setSize(450,220);
 		oneTimeDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
 		oneTimeDialog.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent event){
@@ -85,25 +85,49 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 			}
 		});
 
-		JPanel p=new JPanel(new GridLayout(3,1));
+		JPanel panel=new JPanel(new BorderLayout());
+		JPanel p=new JPanel(new GridLayout(2,2));
 		label_name=new JLabel("Enter your name");
-		name_field=new JTextField(25);
+		JLabel label_ip=new JLabel("Enter your server address");
+		name_field=new JTextField(15);
+		ip_field=new JTextField(15);
+		ip_field.setText("localhost:8081");
 		name_field.addActionListener(this);
+		ip_field.addActionListener(this);
+		ip_field.setPreferredSize(new Dimension(400,28));
+		name_field.setPreferredSize(new Dimension(400,28));
 		connectButton=new JButton("Connect");
 		connectButton.addActionListener(this);
+		connectButton.setPreferredSize(new Dimension(110,30));
 
 		JPanel p1=new JPanel(new GridBagLayout());
 		JPanel p2=new JPanel(new GridBagLayout());
 		JPanel p3=new JPanel(new GridBagLayout());
+		JPanel p4=new JPanel(new GridBagLayout());
+		JPanel p5=new JPanel(new GridBagLayout());
+		GridBagConstraints gbc=new GridBagConstraints();
+		gbc.gridx=0;	gbc.gridy=0;	gbc.gridheight=1;	gbc.gridwidth=1;	gbc.anchor=GridBagConstraints.CENTER;
+		gbc.weightx=1.0;	gbc.weighty=1.0; 	gbc.fill=GridBagConstraints.HORIZONTAL;
+		Insets insets=new Insets(10,0,10,30);
+		gbc.insets=insets;
 
 		p1.add(label_name);
-		p2.add(name_field);
-		p3.add(connectButton);
+		p2.add(name_field,gbc);
+		p3.add(label_ip);
+		p4.add(ip_field,gbc);
+		gbc.fill=GridBagConstraints.NONE;
+		gbc.insets=new Insets(5,5,15,5);
+		p5.add(connectButton,gbc);
 
 		p.add(p1);
 		p.add(p2);
 		p.add(p3);
-		oneTimeDialog.add(p);
+		p.add(p4);
+
+		panel.add(p,"Center");
+		panel.add(p5,"South");
+
+		oneTimeDialog.add(panel);
 		oneTimeDialog.setVisible(true);
 	}
 
@@ -171,10 +195,27 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void actionPerformed(ActionEvent action){
 
 		// for one time dialog
-		if((action.getSource()==connectButton||action.getSource()==name_field)&&(!clickedAlready)){
+		if((action.getSource()==connectButton||action.getSource()==name_field||action.getSource()==ip_field)&&(!clickedAlready)){
 			test("Enter a name: "+ name_field.getText());	
 
-			if((name_field.getText()!=null)&(name_field.getText().length()!=0)){
+			if((name_field.getText()!=null)&(ip_field.getText()!=null)&(name_field.getText().length()!=0)&(ip_field.getText().length()!=0)){
+
+				String[] ipsplits=ip_field.getText().trim().split(":");
+				if(ipsplits.length!=2){
+					JOptionPane.showMessageDialog(this,"Invalid Server address format","Error!",JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				server_ip=ipsplits[0];
+				int t1=0;
+				try{
+					t1=Integer.parseInt(ipsplits[1]);
+				}catch(Exception exp){
+					JOptionPane.showMessageDialog(this,"Invalid Server address format","Error!",JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				server_port=t1;
 
 				try{
 					socket=null;
@@ -198,7 +239,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 					String fromServer=reader.readLine();
 
 					if(fromServer.equals("alias already taken... please enter another alias")){
-						label_name.setText("Alias already taken.. Please enter another alias");
+						JOptionPane.showMessageDialog(this,"Alias already taken.. Please enter another alias","Error!",JOptionPane.ERROR_MESSAGE);
 						name_field.setText("");
 						return;
 
@@ -354,7 +395,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 				}
 
 			}else{
-				label_name.setText("Enter valid Name");
+				JOptionPane.showMessageDialog(this,"Enter valid Name/IPaddress:port","Error!",JOptionPane.ERROR_MESSAGE);
 			}
 
 		}else if(action.getSource()==sendButton||action.getSource()==inputField){
