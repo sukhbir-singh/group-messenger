@@ -384,8 +384,10 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		model.removeElement(alias);
 		ChatDialog d=channels.get(alias);
 		if(d!=null){
-			d.setVisible(false);
-			d.dispose();
+			if(d.isVisible()){
+				d.activeDialog(false);
+				d.write2Editor(alias+" disconnects permanently");
+			}
 		}
 		channels.remove(alias);
 	}
@@ -427,4 +429,5 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void mouseExited(MouseEvent e){}
 	public void mousePressed(MouseEvent e){}
 	public void mouseReleased(MouseEvent e){}
+
 }
