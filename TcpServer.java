@@ -14,6 +14,8 @@ public class TcpServer
 	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
 	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
 	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
+	public static String START_CHAT_DIALOG="78e11adaf50b4cce825d2bfecdd57cec";
+	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
 
 	public static void main(String[] args)throws Exception
 	{
@@ -84,6 +86,32 @@ public class TcpServer
 									hashMap.remove(socket2);
 									break;
 								}			
+
+								boolean flag_nextloop=false;
+
+								if(str.contains(START_CHAT_DIALOG+"")){
+									String[] splits=str.split(" ");
+									String to_client=splits[3];
+
+									// to find to_client's socket and forward start chat message to it only
+									Set<Socket> sockets=hashMap.keySet();
+									Iterator<Socket> iterator=sockets.iterator();
+
+									while(iterator.hasNext()){
+										Socket sc1=iterator.next();
+										String temp=hashMap.get(sc1);
+										if(temp.equals(to_client)){
+											PrintWriter out1=new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc1.getOutputStream())),true);	
+											out1.println(str);
+											flag_nextloop=true;
+											break;
+										}
+									}
+								}
+
+								if(flag_nextloop==true){
+									continue;
+								}
 
 	 							System.out.println(""+hashMap.get(socket2)+": "+str);	
 	 							remotePrint(socket2,""+hashMap.get(socket2)+": "+str);

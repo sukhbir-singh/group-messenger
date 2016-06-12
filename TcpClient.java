@@ -35,6 +35,8 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
 	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
 	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
+	public static String START_CHAT_DIALOG="78e11adaf50b4cce825d2bfecdd57cec";
+	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
 
 	TcpClient(){ 
 		setBackground(Color.white);
@@ -142,51 +144,6 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		add(main_panel,"Center");
 	}
 
-	public void showChatDialog(){
-		chatDialog=new JDialog(this,"Required !!",Dialog.ModalityType.APPLICATION_MODAL);
-		chatDialog.setSize(350,350);
-		chatDialog.setLocationRelativeTo(null);
-		chatDialog.setLocation(screen_width/2-300/2,screen_height/2-300/2);
-		chatDialog.setTitle("Client1 to Client2");
-
-		int bottomHeight=35;
-		int bottomWidth=50;
-		Dimension d=new Dimension(bottomWidth,bottomHeight);
-
-		JPanel p=new JPanel(new BorderLayout());
-		JEditorPane ed1=new JEditorPane();
-		ed1.setEditable(false);
-		ed1.setFont(new Font("Arial",Font.PLAIN,14));
-		ed1.setText("Connected..");
-		ed1.setBackground(new Color(226,226,226));
-		ed1.setForeground(new Color(43,43,43));
-
-		JPanel bottomPane=new JPanel(new GridBagLayout());
-		JButton chat_sendButton=new JButton("Send");
-		chat_sendButton.addActionListener(this);
-		chat_sendButton.setPreferredSize(d);
-
-		JTextField chat_messageText=new JTextField(100);
-		chat_messageText.setPreferredSize(d);
-
-		GridBagConstraints gbc=new GridBagConstraints();
-		gbc.gridx=0;	gbc.gridy=0;	gbc.gridheight=1;	gbc.gridwidth=1;	gbc.anchor=GridBagConstraints.CENTER;
-		gbc.weightx=1.0;	gbc.weighty=1.0; 	
-		gbc.fill=GridBagConstraints.BOTH;
-		bottomPane.add(chat_messageText,gbc);
-		
-		gbc.weightx=0;	gbc.weighty=0; 	
-		gbc.gridx=1;	
-		gbc.fill=GridBagConstraints.VERTICAL;
-		bottomPane.add(chat_sendButton,gbc);
-
-		p.add(ed1,"Center");
-		p.add(bottomPane,"South");
-		chatDialog.add(p);
-
-		chatDialog.setVisible(true);
-	}
-
 	public void write2Editor(String in){
 		write2Editor(in,false);
 	}
@@ -277,6 +234,12 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 									while(flag){	
 										str=in.readLine(); test("log: "+str);
+
+										if(str.contains(START_CHAT_DIALOG+"")){
+											String[] splits=str.split(" ");
+											ChatDialog dialog=new ChatDialog(TcpClient.this,splits[3]+" to "+splits[1]);
+											continue;
+										}
 
 										index_add_client=str.indexOf(ADD_CLIENT+"");
 										boolean old_client=false;
@@ -392,9 +355,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void mouseClicked(MouseEvent e){
 		if(e.getClickCount()==2){
 		 int index = list.locationToIndex(e.getPoint());
-         System.out.println("Double clicked on Item " + index+" "+clientName+" to "+list.getSelectedValue());
+		 String title=clientName+" to "+list.getSelectedValue();
+         System.out.println("Double clicked on Item " + index+" "+title);
          //showChatDialog();
-         ChatDialog dialog=new ChatDialog(this,clientName+" to "+list.getSelectedValue());
+         ChatDialog dialog=new ChatDialog(this,title);
+         writer.println(START_CHAT_DIALOG+" "+title);
 		}
 	}
 

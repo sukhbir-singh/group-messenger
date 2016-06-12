@@ -11,7 +11,7 @@ public class ChatDialog extends JDialog implements ActionListener{
 	JTextField inputField;
 
 	public ChatDialog(JFrame frame,String title){
-		super(frame,title,Dialog.ModalityType.APPLICATION_MODAL);
+		super(frame,title,Dialog.ModalityType.MODELESS);
 		parentFrame=frame;
 
 		setSize(350,350);
