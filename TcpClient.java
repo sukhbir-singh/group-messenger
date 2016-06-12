@@ -19,6 +19,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 	Thread receiver,sender;
 	HashMap<String,ChatDialog> channels;	
+	Socket socket;	// server socket
 
 	JButton sendButton,connectButton;
 	JTextField inputField;
@@ -61,7 +62,6 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		sendButton.setPreferredSize(new Dimension(side_panel_width,bottom_panel_height));
 
 		createOneTimeDialog();
-		//showChatDialog();
 
 		createUsersPanel();
 		createMainPanel();
@@ -175,7 +175,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 			if((name_field.getText()!=null)&(name_field.getText().length()!=0)){
 
 				try{
-					Socket socket=null;
+					socket=null;
 
 					if(server_ip.equals("localhost")){
 						InetAddress addr = InetAddress.getByName("localhost");
@@ -237,11 +237,19 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 										if(str.contains(START_CHAT_DIALOG+"")){
 											String[] splits=str.split(" ");
-											
+
 											if(channels.get(splits[1])==null){
-												channels.put(splits[1],new ChatDialog(TcpClient.this,splits[3]+" to "+splits[1]));	
+												channels.put(splits[1],new ChatDialog(TcpClient.this,socket,splits[3]+" to "+splits[1]));	
 											}
 											
+											continue;
+										}else if(str.contains(SEND_DIRECT_MESSAGE+"")){
+											String[] splits=str.split(" ");
+											ChatDialog d=channels.get(splits[1]);
+											if(d!=null){
+												d.write2Editor(splits[1]+": "+str.substring(str.indexOf(splits[4])));
+											}
+
 											continue;
 										}
 
@@ -366,11 +374,10 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		 int index = list.locationToIndex(e.getPoint());
 		 String title=clientName+" to "+list.getSelectedValue();
          System.out.println("Double clicked on Item " + index+" "+title);
-         //showChatDialog();
 
          ChatDialog d=channels.get(list.getSelectedValue());
          if(d==null){
-         	channels.put(list.getSelectedValue(),new ChatDialog(this,title));
+         	channels.put(list.getSelectedValue(),new ChatDialog(this,socket,title));
          	writer.println(START_CHAT_DIALOG+" "+title);
          }else{
          	d.setVisible(true);

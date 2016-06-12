@@ -89,7 +89,7 @@ public class TcpServer
 
 								boolean flag_nextloop=false;
 
-								if(str.contains(START_CHAT_DIALOG+"")){
+								if(str.contains(START_CHAT_DIALOG+"")||str.contains(SEND_DIRECT_MESSAGE+"")){
 									String[] splits=str.split(" ");
 									String to_client=splits[3];
 
