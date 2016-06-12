@@ -18,7 +18,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	JDialog chatDialog;
 
 	Thread receiver,sender;
-	HashMap<String,Integer> channels;	// 1 refers "on", 0 refers "off"
+	HashMap<String,ChatDialog> channels;	
 
 	JButton sendButton,connectButton;
 	JTextField inputField;
@@ -237,7 +237,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 										if(str.contains(START_CHAT_DIALOG+"")){
 											String[] splits=str.split(" ");
-											ChatDialog dialog=new ChatDialog(TcpClient.this,splits[3]+" to "+splits[1]);
+											
+											if(channels.get(splits[1])==null){
+												channels.put(splits[1],new ChatDialog(TcpClient.this,splits[3]+" to "+splits[1]));	
+											}
+											
 											continue;
 										}
 
@@ -333,7 +337,7 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 
 		if(!model.contains(alias)&&(!alias.trim().equals(clientName))){
 			model.addElement(alias);	
-			channels.put(alias,0);
+			channels.put(alias,null);
 		}
 	}
 
@@ -341,6 +345,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		//test("request received for removing "+alias);
 
 		model.removeElement(alias);
+		ChatDialog d=channels.get(alias);
+		if(d!=null){
+			d.setVisible(false);
+			d.dispose();
+		}
 		channels.remove(alias);
 	}
 
@@ -358,8 +367,14 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 		 String title=clientName+" to "+list.getSelectedValue();
          System.out.println("Double clicked on Item " + index+" "+title);
          //showChatDialog();
-         ChatDialog dialog=new ChatDialog(this,title);
-         writer.println(START_CHAT_DIALOG+" "+title);
+
+         ChatDialog d=channels.get(list.getSelectedValue());
+         if(d==null){
+         	channels.put(list.getSelectedValue(),new ChatDialog(this,title));
+         	writer.println(START_CHAT_DIALOG+" "+title);
+         }else{
+         	d.setVisible(true);
+         }
 		}
 	}
 
