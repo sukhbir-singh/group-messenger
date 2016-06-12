@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.net.*;
 import java.io.*;
 
-public class ChatDialog extends JDialog implements ActionListener{
+public class ChatDialog extends JDialog implements ActionListener,WindowListener{
 
 	JFrame parentFrame;
 	JEditorPane editor;
@@ -15,6 +15,8 @@ public class ChatDialog extends JDialog implements ActionListener{
 	Socket socket;
 
 	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
+	public static String ACTIVE_DIALOG="d11b5acc90c246a6bb60e7ae4bb06af5";
+	public static String DEACTIVE_DIALOG="e078af7ba3934789818b652d938253cb";
 
 	public ChatDialog(JFrame frame,Socket socket,String title){
 		super(frame,title,Dialog.ModalityType.MODELESS);
@@ -25,7 +27,6 @@ public class ChatDialog extends JDialog implements ActionListener{
 			System.out.println(exp.getMessage());
 		}
 		
-
 		setSize(350,350);
 		setLocationRelativeTo(parentFrame);
 
@@ -51,6 +52,7 @@ public class ChatDialog extends JDialog implements ActionListener{
 		inputField=new JTextField(100);
 		inputField.setPreferredSize(d);
 		inputField.addActionListener(this);
+		addWindowListener(this);
 
 		GridBagConstraints gbc=new GridBagConstraints();
 		gbc.gridx=0;	gbc.gridy=0;	gbc.gridheight=1;	gbc.gridwidth=1;	gbc.anchor=GridBagConstraints.CENTER;
@@ -74,6 +76,15 @@ public class ChatDialog extends JDialog implements ActionListener{
 		write2Editor(in,false);
 	}
 
+	public void activeDialog(boolean b){
+
+		if(b==true){
+			chat_sendButton.setEnabled(true);
+		}else{
+			chat_sendButton.setEnabled(false);
+		}
+	}
+
 	public void write2Editor(String in,boolean nextLine){
 		if(nextLine){
 			editor.setText(editor.getText()+"\n"+in+"\n");
@@ -86,15 +97,32 @@ public class ChatDialog extends JDialog implements ActionListener{
 
 	public void actionPerformed(ActionEvent event){
 		if(event.getSource()==chat_sendButton||event.getSource()==inputField){
-			String text=inputField.getText();
-			if(text.trim().length()==0){
-				return;
-			}
 
-			writer.println(SEND_DIRECT_MESSAGE+" "+getTitle()+" "+text);
-			write2Editor("Me: "+inputField.getText());
-			inputField.setText("");
+			if(chat_sendButton.isEnabled()){
+				String text=inputField.getText();
+				if(text.trim().length()==0){
+					return;
+				}
+
+				writer.println(SEND_DIRECT_MESSAGE+" "+getTitle()+" "+text);
+				write2Editor("Me: "+inputField.getText());
+				inputField.setText("");
+			}
 		}
+	}
+
+	public void windowClosed(WindowEvent a10){}
+	public void windowActivated(WindowEvent a11){}
+	public void windowDeactivated(WindowEvent a12){}
+	public void windowIconified(WindowEvent a15){}
+	public void windowDeiconified(WindowEvent a16){}
+	public void windowOpened(WindowEvent a17){}
+
+	public void windowClosing(WindowEvent a13){
+		System.out.println("dialog closing");
+		writer.println(DEACTIVE_DIALOG+" "+getTitle());
+		setVisible(false);
+		dispose();
 	}
 
 }

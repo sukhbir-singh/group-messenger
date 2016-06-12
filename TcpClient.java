@@ -38,6 +38,8 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
 	public static String START_CHAT_DIALOG="78e11adaf50b4cce825d2bfecdd57cec";
 	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
+	public static String ACTIVE_DIALOG="d11b5acc90c246a6bb60e7ae4bb06af5";
+	public static String DEACTIVE_DIALOG="e078af7ba3934789818b652d938253cb";
 
 	TcpClient(){ 
 		setBackground(Color.white);
@@ -236,18 +238,45 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 										str=in.readLine(); test("log: "+str);
 
 										if(str.contains(START_CHAT_DIALOG+"")){
-											String[] splits=str.split(" ");
-
-											if(channels.get(splits[1])==null){
+											String[] splits=str.split(" ");											
+											ChatDialog d=channels.get(splits[1]);	
+											
+											if(d!=null){		
+												if(!d.isVisible()){
+													channels.put(splits[1],new ChatDialog(TcpClient.this,socket,splits[3]+" to "+splits[1]));	
+												}else{
+													d.activeDialog(true);
+													d.write2Editor(splits[1]+" connects");
+												}
+												
+											}else{	
 												channels.put(splits[1],new ChatDialog(TcpClient.this,socket,splits[3]+" to "+splits[1]));	
 											}
-											
+
 											continue;
 										}else if(str.contains(SEND_DIRECT_MESSAGE+"")){
 											String[] splits=str.split(" ");
 											ChatDialog d=channels.get(splits[1]);
 											if(d!=null){
 												d.write2Editor(splits[1]+": "+str.substring(str.indexOf(splits[4])));
+											}
+
+											continue;
+										}else if(str.contains(ACTIVE_DIALOG+"")){
+											String[] splits=str.split(" ");
+											ChatDialog d=channels.get(splits[1]);	
+											if(d!=null){	
+												d.activeDialog(true);
+												d.write2Editor(splits[1]+" connects");
+											}
+
+											continue;
+										}else if(str.contains(DEACTIVE_DIALOG+"")){
+											String[] splits=str.split(" ");
+											ChatDialog d=channels.get(splits[1]);	
+											if(d!=null){	
+												d.activeDialog(false);
+												d.write2Editor(splits[1]+" disconnects");
 											}
 
 											continue;
@@ -364,7 +393,11 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
 	public void valueChanged(ListSelectionEvent event){
 		if(!event.getValueIsAdjusting()){
 			JList source=(JList)event.getSource();
-			String item=source.getSelectedValue().toString().trim();
+			String item=null;
+
+			if(source.getSelectedValue()!=null){
+				item=source.getSelectedValue().toString().trim();
+			}
 			//test("item selected "+item);
 		}
 	}
@@ -380,7 +413,12 @@ public class TcpClient extends JFrame implements ActionListener, ListSelectionLi
          	channels.put(list.getSelectedValue(),new ChatDialog(this,socket,title));
          	writer.println(START_CHAT_DIALOG+" "+title);
          }else{
-         	d.setVisible(true);
+         	if(!d.isVisible()){
+         		channels.put(list.getSelectedValue(),new ChatDialog(this,socket,title));
+         		writer.println(START_CHAT_DIALOG+" "+title);
+         	}else{
+         		d.setVisible(true);	
+         	}
          }
 		}
 	}

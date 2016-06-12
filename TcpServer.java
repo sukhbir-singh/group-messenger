@@ -16,6 +16,8 @@ public class TcpServer
 	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
 	public static String START_CHAT_DIALOG="78e11adaf50b4cce825d2bfecdd57cec";
 	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
+	public static String ACTIVE_DIALOG="d11b5acc90c246a6bb60e7ae4bb06af5";
+	public static String DEACTIVE_DIALOG="e078af7ba3934789818b652d938253cb";
 
 	public static void main(String[] args)throws Exception
 	{
@@ -89,8 +91,8 @@ public class TcpServer
 
 								boolean flag_nextloop=false;
 
-								if(str.contains(START_CHAT_DIALOG+"")||str.contains(SEND_DIRECT_MESSAGE+"")){
-									String[] splits=str.split(" ");
+								if((str.contains(START_CHAT_DIALOG+""))||(str.contains(SEND_DIRECT_MESSAGE+""))||(str.contains(ACTIVE_DIALOG+""))||(str.contains(DEACTIVE_DIALOG+""))){
+									String[] splits=str.split(" ");		System.out.println("@server : "+str);
 									String to_client=splits[3];
 
 									// to find to_client's socket and forward start chat message to it only
