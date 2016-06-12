@@ -11,13 +11,13 @@ public class TcpServer
 	static String name=null;
 	static int count=0;
 
-	public static String ADD_CLIENT="74d228127c5e4554a3f706370978f718";
-	public static String REMOVE_CLIENT="8b8b77288d4443ccbe3032f73b8fe3a5";
-	public static String LIST_CLIENTS="d34638dc9cd9453db6631e43b4f6c376";
-	public static String START_CHAT_DIALOG="78e11adaf50b4cce825d2bfecdd57cec";
-	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
-	public static String ACTIVE_DIALOG="d11b5acc90c246a6bb60e7ae4bb06af5";
-	public static String DEACTIVE_DIALOG="e078af7ba3934789818b652d938253cb";
+	public static String ADD_CLIENT="74d228153c5e4554a3f706337978f718";
+	public static String REMOVE_CLIENT="8b8b77255d4443ccbe3032f57b8fe3a5";
+	public static String LIST_CLIENTS="d34638d4Bcd9453db6631e4B64f6c376";
+	public static String START_CHAT_DIALOG="78e11ad4850b4cce825d2bf86dd57cec";
+	public static String SEND_DIRECT_MESSAGE="5ae38464206a415b881044126a46dbda";
+	public static String ACTIVE_DIALOG="d11b5ac490c246a6bb60e7a96bb06af5";
+	public static String DEACTIVE_DIALOG="e078af7523934789818b6522738253cb";
 
 	public static void main(String[] args)throws Exception
 	{

@@ -14,9 +14,9 @@ public class ChatDialog extends JDialog implements ActionListener,WindowListener
 	PrintWriter writer;
 	Socket socket;
 
-	public static String SEND_DIRECT_MESSAGE="5ae3846ad06a415b8810441bba46dbda";
-	public static String ACTIVE_DIALOG="d11b5acc90c246a6bb60e7ae4bb06af5";
-	public static String DEACTIVE_DIALOG="e078af7ba3934789818b652d938253cb";
+	public static String SEND_DIRECT_MESSAGE="5ae38464206a415b881044126a46dbda";
+	public static String ACTIVE_DIALOG="d11b5ac490c246a6bb60e7a96bb06af5";
+	public static String DEACTIVE_DIALOG="e078af7523934789818b6522738253cb";
 
 	public ChatDialog(JFrame frame,Socket socket,String title){
 		super(frame,title,Dialog.ModalityType.MODELESS);
